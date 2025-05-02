@@ -1,0 +1,148 @@
+<template>
+  <section>
+    <div class="py-8 px-4 mx-auto max-w-screen-2xl lg:py-10 lg:px-6">
+      <AppHeader />
+
+      <div class="flex flex-col lg:flex-row justify-between gap-4 items-center mb-3 w-full">
+        <!-- BTC Liquidity Button -->
+        <UButton
+          label="BTC Liquidity"
+          :ui="{
+            base: 'text-amber-500',
+          }"
+          variant="outline"
+          active-variant="subtle"
+          icon="i-material-symbols:currency-bitcoin"
+          block
+          size="xl"
+          :active="isActiveSource('heatmap')"
+          :disabled="isLoading"
+          @click="handleAnalyze('heatmap')"
+        />
+
+        <!-- TradingView Chart Button -->
+        <UButton
+          label="TradingView Chart"
+          color="info"
+          variant="outline"
+          active-variant="subtle"
+          icon="i-simple-icons-tradingview"
+          size="xl"
+          block
+          :active="isActiveSource('tradingview')"
+          :disabled="isLoading"
+          @click="handleAnalyze('tradingview')"
+        />
+
+        <!-- Chart + Map Button -->
+        <UButton
+          label="Chart + Map"
+          color="success"
+          icon="i-material-symbols:auto-graph"
+          variant="outline"
+          active-variant="subtle"
+          size="xl"
+          block
+          :active="isActiveSource('general')"
+          :disabled="isLoading"
+          @click="handleAnalyze('general')"
+        />
+      </div>
+
+      <div
+        v-if="!analysisResult && !isLoading"
+        class="grid grid-cols-1 lg:grid-cols-3 text-justify gap-6"
+      >
+        <DescriptionCard
+          v-for="(item, idx) in cardsDescriptionMap"
+          :key="idx"
+          :content="item.content"
+          :icon="item.icon"
+          :tags="item.tags"
+          :color-scheme="item.color"
+        />
+      </div>
+
+      <ClientOnly>
+        <!-- Loading state -->
+        <AnalysisLoading v-if="isLoading" />
+
+        <!-- Error state -->
+        <UAlert
+          v-else-if="error"
+          color="error"
+          variant="soft"
+          icon="i-heroicons-exclamation-triangle"
+          title="Erro na análise"
+          :description="error"
+          class="mb-4"
+        />
+
+        <UCard
+          v-else-if="analysisResult"
+          variant="subtle"
+          class="mt-10"
+          :ui="{ body: 'h-[400px] 2xl:h-[650px] overflow-y-auto' }"
+        >
+          <MarkdownRenderer
+            :source="analysisResult.response"
+          />
+        </UCard>
+      </ClientOnly>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { useAnalysis } from '@/composables/useAnalysis'
+import type { AnalysisSource } from '@/types/analysis'
+import DescriptionCard from '@/components/analysis/DescriptionCard.vue'
+
+useHead({
+  bodyAttrs: {
+    class: 'bg-stone-100 dark:bg-neutral-900',
+  },
+})
+
+interface CardsDescriptionProps {
+  content: string
+  icon: string
+  tags: string[]
+  color: 'amber' | 'blue' | 'green' | 'red' | 'purple' | 'indigo' | 'pink' | undefined
+}
+
+const { isLoading, analysisResult, error, analyzeGeneral, analyzeSingleSource, isActiveSource } = useAnalysis()
+
+/**
+ * Gerencia os diferentes tipos de análise com base na fonte
+ */
+const handleAnalyze = async (source: AnalysisSource) => {
+  if (source === 'general') {
+    await analyzeGeneral()
+  }
+  else {
+    await analyzeSingleSource(source)
+  }
+}
+
+const cardsDescriptionMap: CardsDescriptionProps[] = [
+  {
+    content: 'Análise do mapa de calor do Bitcoin na plataforma Coinglass, identificando pontos críticos de liquidação. Visualize onde grandes ordens estão posicionadas e tome decisões mais assertivas.',
+    icon: 'i-material-symbols:currency-bitcoin',
+    tags: ['Liquidação', 'Coinglass'],
+    color: 'amber',
+  },
+  {
+    content: 'Análise detalhada do gráfico diário do Bitcoin diretamente do TradingView. Obtenha insights valiosos sobre o price action, tendências e possíveis movimentos futuros do ativo.',
+    icon: 'i-simple-icons-tradingview',
+    tags: ['Análise Técnica', 'Price Action'],
+    color: 'blue',
+  },
+  {
+    content: 'Análise completa que combina o gráfico do TradingView com o mapa de liquidações. Visualize simultaneamente o price action e os pontos de liquidação para uma estratégia de trading mais abrangente.',
+    icon: 'i-material-symbols:auto-graph',
+    tags: ['Análise Completa', 'Visão Integrada'],
+    color: 'green',
+  },
+]
+</script>
