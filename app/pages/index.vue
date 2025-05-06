@@ -7,9 +7,7 @@
         <!-- BTC Liquidity Button -->
         <UButton
           label="BTC Liquidity"
-          :ui="{
-            base: 'text-amber-500',
-          }"
+          color="amber"
           variant="outline"
           active-variant="subtle"
           icon="i-material-symbols:currency-bitcoin"

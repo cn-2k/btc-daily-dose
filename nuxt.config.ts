@@ -16,6 +16,20 @@ export default defineNuxtConfig({
     preference: 'dark',
   },
 
+  ui: {
+    theme: {
+      colors: [
+        'amber',
+        'primary',
+        'secondary',
+        'info',
+        'success',
+        'warning',
+        'error',
+      ],
+    },
+  },
+
   runtimeConfig: {
     openaiApiKey: '',
   },
