@@ -47,8 +47,11 @@
         />
       </div>
 
-      <div
+      <!-- Cards de descrição com transição de fade -->
+      <transition-group
         v-if="!analysisResult && !isLoading"
+        name="fade"
+        tag="div"
         class="grid grid-cols-1 lg:grid-cols-3 text-justify gap-6"
       >
         <DescriptionCard
@@ -59,33 +62,45 @@
           :tags="item.tags"
           :color-scheme="item.color"
         />
-      </div>
+      </transition-group>
 
       <ClientOnly>
-        <!-- Loading state -->
-        <AnalysisLoading v-if="isLoading" />
-
-        <!-- Error state -->
-        <UAlert
-          v-else-if="error"
-          color="error"
-          variant="soft"
-          icon="i-heroicons-exclamation-triangle"
-          title="Erro na análise"
-          :description="error"
-          class="mb-4"
-        />
-
-        <UCard
-          v-else-if="analysisResult"
-          variant="subtle"
-          class="mt-10"
-          :ui="{ body: 'h-[400px] 2xl:h-[650px] overflow-y-auto' }"
+        <!-- Loading state com transição -->
+        <transition
+          name="fade"
+          mode="out-in"
         >
-          <MarkdownRenderer
-            :source="analysisResult.response"
+          <RealtimeUpdates
+            v-if="isLoading"
+            key="loading"
+            initial-message="Analisando dados do Bitcoin..."
           />
-        </UCard>
+
+          <!-- Error state com transição -->
+          <UAlert
+            v-else-if="error"
+            key="error"
+            color="error"
+            variant="soft"
+            icon="i-heroicons-exclamation-triangle"
+            title="Erro na análise"
+            :description="error"
+            class="mb-4 mt-4"
+          />
+
+          <!-- Resultado com transição -->
+          <UCard
+            v-else-if="analysisResult"
+            key="result"
+            variant="subtle"
+            class="mt-10"
+            :ui="{ body: 'h-[400px] 2xl:h-[650px] overflow-y-auto' }"
+          >
+            <MarkdownRenderer
+              :source="analysisResult.response"
+            />
+          </UCard>
+        </transition>
       </ClientOnly>
     </div>
   </section>
@@ -144,3 +159,22 @@ const cardsDescriptionMap: CardsDescriptionProps[] = [
   },
 ]
 </script>
+
+<style scoped>
+/* Estilos para a transição de fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* Estilos específicos para transition-group */
+.fade-move {
+  transition: transform 0.5s ease;
+}
+</style>

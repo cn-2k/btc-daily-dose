@@ -1,5 +1,6 @@
 import type { Page } from 'puppeteer-core'
 import type * as ChatAPI from '../../node_modules/openai/src/resources/chat/chat'
+import { serverLog } from '../../server/utils/logger'
 import { openAIClient } from './client'
 
 export const SCHEDULE = process.env.SCHEDULE
@@ -13,15 +14,8 @@ export const OPENAI_MODEL: ChatAPI.ChatModel
 export const OPENAI_MAX_TOKENS = Number(process.env.OPENAI_MAX_TOKENS)
 export const OPENAI_INSTRUCTION = process.env.OPENAI_INSTRUCTION
 
-export const log = (level: 'info' | 'warn' | 'error', message: string, error?: Error) => {
-  const timestamp = new Date().toISOString()
-  const errorDetails = error ? ` | Error: ${error.message}` : ''
-
-  console[level](`[${timestamp}] [${level.toUpperCase()}] ${message}${errorDetails}`)
-}
-
 export const getTradingViewScreenshot = async (page: Page) => {
-  log('info', 'Going to TradingView Page')
+  serverLog('Going to TradingView Page')
 
   await page.setViewport({
     width: 1920, // Largura da tela
@@ -32,13 +26,13 @@ export const getTradingViewScreenshot = async (page: Page) => {
 
   // Captura o screenshot como buffer
   const screenshotBase64 = await page.screenshot({ encoding: 'base64' })
-  log('info', 'TradingView screenshot captured in base64.')
+  serverLog('TradingView screenshot captured in base64.')
 
   return screenshotBase64
 }
 
 export const getHeatMapScreenshot = async (page: Page) => {
-  log('info', 'Going to Coinglass BTC HeatMap Page')
+  serverLog('Going to Coinglass BTC HeatMap Page')
 
   await page.setViewport({
     width: 1920, // Largura da tela
@@ -49,14 +43,14 @@ export const getHeatMapScreenshot = async (page: Page) => {
 
   // Captura o screenshot como buffer
   const screenshotBase64 = await page.screenshot({ encoding: 'base64' })
-  log('info', 'BTC Liquidity Heatmap screenshot captured in base64.')
+  serverLog('BTC Liquidity Heatmap screenshot captured in base64.')
 
   return screenshotBase64
 }
 
 export const analyseTradingViewChartWithOpenAI = async (screenshot: string) => {
   try {
-    log('info', 'Starting A.I analysis of TradingView BTC chart...')
+    serverLog('Starting A.I analysis of TradingView BTC chart...')
 
     const chatCompletion = await openAIClient.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -95,7 +89,7 @@ Seja claro, objetivo e útil para decisões no mercado de criptomoedas, principa
     })
 
     const responseContent = chatCompletion.choices[0]?.message?.content
-    log('info', 'A.I analysis of TradingView BTC chart completed successfully.')
+    serverLog('A.I analysis of TradingView BTC chart completed successfully.')
 
     return responseContent
   }
@@ -109,7 +103,7 @@ export const analyseHeatMapChartWithOpenAI = async (
   screenshot: string,
 ) => {
   try {
-    log('info', 'Starting A.I analysis of BTC Liquidity Heatmap...')
+    serverLog('Starting A.I analysis of BTC Liquidity Heatmap...')
 
     const chatCompletion = await openAIClient.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -152,7 +146,7 @@ Seja técnico e estratégico, priorizando informações acionáveis. Explique su
     })
 
     const responseContent = chatCompletion.choices[0]?.message?.content
-    log('info', 'A.I analysis of BTC Liquidity Heatmap completed successfully.')
+    serverLog('A.I analysis of BTC Liquidity Heatmap completed successfully.')
 
     return responseContent
   }
@@ -164,7 +158,7 @@ Seja técnico e estratégico, priorizando informações acionáveis. Explique su
 
 export const analyseChartAndLiquidationWithOpenAI = async (tradingViewScreenshot: string, heatMap: string) => {
   try {
-    log('info', 'Starting general A.I analysis of BTC chart and heat map...')
+    serverLog('Starting general A.I analysis of BTC chart and heat map...')
 
     const chatCompletion = await openAIClient.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -204,7 +198,7 @@ export const analyseChartAndLiquidationWithOpenAI = async (tradingViewScreenshot
     })
 
     const responseContent = chatCompletion.choices[0]?.message?.content
-    log('info', 'A.I analysis of BTC chart and heat map completed successfully.')
+    serverLog('A.I analysis of BTC chart and heat map completed successfully.')
 
     return responseContent
   }

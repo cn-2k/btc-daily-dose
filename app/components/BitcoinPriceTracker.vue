@@ -1,14 +1,5 @@
 <template>
   <div class="flex items-center gap-2">
-    <!-- <div class="">
-      <span
-        class="text-xs"
-        :class="{ 'text-green-500': isConnected, 'text-red-500': !isConnected }"
-      >
-        {{ isConnected ? '● Conectado' : '● Desconectado' }}
-      </span>
-    </div> -->
-
     <UButtonGroup size="xl">
       <UBadge
         icon="i-mdi-bitcoin"
@@ -30,6 +21,19 @@
       >
         <UButton
           icon="i-material-symbols-sync-rounded"
+          variant="outline"
+          color="neutral"
+          :loading="isUpdating"
+          @click="updateConnection()"
+        />
+      </UTooltip>
+      <UTooltip
+        text="Inserir chave de API"
+        :delay-duration="0"
+        :content="{ side: 'top' }"
+      >
+        <UButton
+          icon="i-material-symbols:key"
           variant="outline"
           color="neutral"
           :loading="isUpdating"
