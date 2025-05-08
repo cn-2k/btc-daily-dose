@@ -1,4 +1,4 @@
-import { analyseTradingViewChartWithOpenAI } from '@/utils/helpers'
+import { analyseTradingViewChartWithOpenAI } from '@/utils/ai'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

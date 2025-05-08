@@ -77,7 +77,6 @@ const connectWebSocket = () => {
   socket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade')
 
   socket.onopen = () => {
-    console.log('Conexão WebSocket estabelecida')
     isConnected.value = true
   }
 
@@ -88,14 +87,13 @@ const connectWebSocket = () => {
   }
 
   socket.onclose = () => {
-    console.log('Conexão WebSocket fechada')
     isConnected.value = false
     // Tentar reconectar após 5 segundos
     setTimeout(connectWebSocket, 5000)
   }
 
   socket.onerror = (error) => {
-    console.error('Erro na conexão WebSocket:', error)
+    console.error(error)
     isConnected.value = false
   }
 }

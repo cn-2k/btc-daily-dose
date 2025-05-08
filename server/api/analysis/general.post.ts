@@ -1,4 +1,4 @@
-import { analyseChartAndLiquidationWithOpenAI } from '@/utils/helpers'
+import { analyseChartAndLiquidationWithOpenAI } from '@/utils/ai'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

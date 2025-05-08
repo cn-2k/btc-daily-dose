@@ -1,4 +1,4 @@
-import { analyseHeatMapChartWithOpenAI } from '@/utils/helpers'
+import { analyseHeatMapChartWithOpenAI } from '@/utils/ai'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)

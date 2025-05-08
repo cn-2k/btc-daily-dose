@@ -1,5 +1,5 @@
 import { connectBrowser } from '@/utils/config'
-import { getTradingViewScreenshot } from '@/utils/helpers'
+import { getTradingViewScreenshot } from '@/utils/puppeteer'
 
 export default defineEventHandler(async () => {
   const { page } = await connectBrowser('https://br.tradingview.com/chart/?symbol=BINANCE%3ABTCUSDT')

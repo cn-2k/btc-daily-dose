@@ -61,7 +61,6 @@ const connectToSSE = () => {
 
   eventSource.onopen = () => {
     isConnected.value = true
-    console.log('Conexão SSE estabelecida')
   }
 
   eventSource.onerror = (error) => {

@@ -1,5 +1,5 @@
 import { connectBrowser } from '@/utils/config'
-import { getHeatMapScreenshot } from '@/utils/helpers'
+import { getHeatMapScreenshot } from '@/utils/puppeteer'
 
 export default defineEventHandler(async () => {
   const { page } = await connectBrowser('https://www.coinglass.com/pt/pro/futures/LiquidationHeatMap')
