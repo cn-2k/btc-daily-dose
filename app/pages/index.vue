@@ -6,7 +6,7 @@
       <div class="flex flex-col lg:flex-row justify-between gap-4 items-center mb-3 w-full">
         <!-- BTC Liquidity Button -->
         <UButton
-          label="BTC Liquidity"
+          label="BTC Liquidity Map"
           color="amber"
           variant="outline"
           active-variant="subtle"
@@ -34,7 +34,7 @@
 
         <!-- Chart + Map Button -->
         <UButton
-          label="Chart + Map"
+          label="Chart + Liquidity"
           color="success"
           icon="i-material-symbols:auto-graph"
           variant="outline"
@@ -94,7 +94,7 @@
             key="result"
             variant="subtle"
             class="mt-10"
-            :ui="{ body: 'h-[400px] 2xl:h-[650px] overflow-y-auto' }"
+            :ui="{ body: 'h-[400px] xl:h-[650px] overflow-y-auto' }"
           >
             <MarkdownRenderer
               :source="analysisResult.response"

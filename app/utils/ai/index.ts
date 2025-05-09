@@ -6,7 +6,7 @@ const runtimeConfig = useRuntimeConfig()
 
 export const analyseTradingViewChartWithOpenAI = async (screenshot: string) => {
   try {
-    serverLog('Starting A.I analysis of TradingView BTC chart...')
+    serverLog('Starting A.I analysis of TradingView BTC chart.')
 
     const chatCompletion = await openAIClient.chat.completions.create({
       model: runtimeConfig.public.openaiModel,
@@ -48,7 +48,7 @@ export const analyseHeatMapChartWithOpenAI = async (
   screenshot: string,
 ) => {
   try {
-    serverLog('Starting A.I analysis of BTC Liquidity Heatmap...')
+    serverLog('Starting A.I analysis of BTC Liquidity Heatmap.')
 
     const chatCompletion = await openAIClient.chat.completions.create({
       model: runtimeConfig.public.openaiModel,
@@ -88,7 +88,7 @@ export const analyseHeatMapChartWithOpenAI = async (
 
 export const analyseChartAndLiquidationWithOpenAI = async (tradingViewScreenshot: string, heatMap: string) => {
   try {
-    serverLog('Starting general A.I analysis of BTC chart and heat map...')
+    serverLog('Starting general A.I analysis of BTC chart and liquidity map.')
 
     const chatCompletion = await openAIClient.chat.completions.create({
       model: runtimeConfig.public.openaiModel,

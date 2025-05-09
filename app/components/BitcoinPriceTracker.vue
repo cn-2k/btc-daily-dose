@@ -18,6 +18,7 @@
         text="Atualizar conexão"
         :delay-duration="0"
         :content="{ side: 'top' }"
+        disable-hoverable-content
       >
         <UButton
           icon="i-material-symbols-sync-rounded"
@@ -27,21 +28,76 @@
           @click="updateConnection()"
         />
       </UTooltip>
-      <UTooltip
-        text="Inserir chave de API"
-        :delay-duration="0"
-        :content="{ side: 'top' }"
+
+      <UChip
+        size="xl"
+        color="warning"
+        inset
+        :ui="{ base: 'animate-pulse' }"
       >
-        <UButton
-          icon="i-material-symbols:key"
-          variant="outline"
-          color="neutral"
-          :loading="isUpdating"
-          @click="updateConnection()"
-        />
-      </UTooltip>
+        <UTooltip
+          text="Configurações"
+          :delay-duration="0"
+          :content="{ side: 'top' }"
+          disable-hoverable-content
+        >
+          <UButton
+            icon="i-material-symbols-light:settings"
+            variant="outline"
+            color="neutral"
+            :loading="isUpdating"
+            @click="openDialog = true"
+          />
+        </UTooltip>
+      </UChip>
     </UButtonGroup>
   </div>
+
+  <UModal
+    v-model:open="openDialog"
+    title="Inserir chave de API"
+    description="Insira sua chave de API da OpenAI"
+    :ui="{ footer: 'justify-end' }"
+  >
+    <template #title>
+      <p>Inserir chave de API</p>
+    </template>
+
+    <template #body>
+      <div>
+        <UFormField
+          label="Chave API"
+        >
+          <UInput
+            v-model="apiKey"
+            class="w-full"
+            placeholder="sk-XXXXXXXXXXXXXXXXXX"
+            icon="i-mdi-key"
+          />
+        </UFormField>
+        <p class="text-xs text-end mt-2 text-gray-300/80">
+          Você consegue obter sua chave clicando <NuxtLink
+            class="text-blue-400 font-bold underline"
+            href="https://platform.openai.com/api-keys"
+            target="_blank"
+          >aqui.</NuxtLink>
+        </p>
+      </div>
+    </template>
+
+    <template #footer>
+      <UButton
+        label="Cancelar"
+        color="neutral"
+        variant="outline"
+        @click="openDialog = false"
+      />
+      <UButton
+        label="Confirmar"
+        color="success"
+      />
+    </template>
+  </UModal>
 </template>
 
 <script setup>
@@ -52,6 +108,8 @@ const priceIncreased = ref(false)
 const priceDecreased = ref(false)
 const isConnected = ref(false)
 const isUpdating = ref(false)
+const openDialog = ref(false)
+const apiKey = ref('')
 
 let socket = null
 
