@@ -7,6 +7,7 @@ export default withNuxt(
     rules: {
       'no-console': 'off', // allow console.log in TypeScript files
       'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   // {

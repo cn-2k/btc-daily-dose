@@ -19,8 +19,8 @@ export const useAnalysis = () => {
       return $fetch<AnalysisResponse>('/api/analysis/general', {
         method: 'POST',
         body: {
-          screenshot1: tradingViewResponse.screenshotBase64,
-          screenshot2: heatMapResponse.screenshotBase64,
+          tradingViewScreenshot: tradingViewResponse.screenshotBase64,
+          heatMap: heatMapResponse.screenshotBase64,
         } as AnalysisRequestBody,
       })
     })

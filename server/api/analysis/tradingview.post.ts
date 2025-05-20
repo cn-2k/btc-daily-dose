@@ -1,10 +1,11 @@
-import { analyseTradingViewChartWithOpenAI } from '@/utils/ai'
+// server/api/analysis/tradingview.post.ts
+import { prompts } from '@/utils/ai/prompts'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event)
 
   try {
-    // Leia o corpo da requisição
+    // Ler o corpo da requisição
     const { screenshot } = await readBody(event)
 
     if (!screenshot) {
@@ -14,20 +15,65 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Use a função de análise diretamente
-    const response = await analyseTradingViewChartWithOpenAI(screenshot)
+    // Buscar a chave API do usuário da sessão ou do localStorage
+    let apiKey = null
 
-    // Retorna a resposta da análise
+    // Verificar se temos a chave na sessão (se o usuário estiver autenticado)
+    const session = await getUserSession(event)
+    if (session?.openaiApiKey) {
+      apiKey = session.openaiApiKey
+    }
+    else {
+      // Verificar se temos a chave no cookie (alternativa se o usuário não estiver autenticado)
+      // Isso é uma implementação de exemplo - pode precisar ser ajustada
+      const cookies = parseCookies(event)
+      if (cookies['openai_api_key']) {
+        apiKey = cookies['openai_api_key']
+      }
+    }
+
+    // Usar a chave de configuração como fallback
+    if (!apiKey) {
+      const config = useRuntimeConfig()
+      apiKey = config.openaiApiKey
+    }
+
+    if (!apiKey) {
+      throw createError({
+        statusCode: 400,
+        message: 'Chave API OpenAI não configurada.',
+      })
+    }
+
+    // Chamar o proxy para a OpenAI
+    const response: any = await $fetch('/api/openai/proxy', {
+      method: 'POST',
+      body: {
+        apiKey,
+        messages: [
+          {
+            role: 'system',
+            content: prompts.tradingViewAnalysis,
+          },
+          {
+            role: 'user',
+            content: 'Por favor, analise este gráfico do Bitcoin:',
+          },
+        ],
+        images: [screenshot],
+        model: useRuntimeConfig().public.openaiModel,
+        max_tokens: useRuntimeConfig().public.openaiMaxTokens,
+        temperature: 0.8,
+      },
+    })
+
+    // Retornar a resposta da análise
     return {
       success: true,
-      response,
+      response: response.content,
     }
   }
   catch (error) {
     console.error('Erro ao processar a análise:', error)
-    throw createError({
-      statusCode: 500,
-      message: 'Erro ao processar a análise.',
-    })
   }
 })
