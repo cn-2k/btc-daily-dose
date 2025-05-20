@@ -125,7 +125,6 @@ interface CardsDescriptionProps {
 }
 
 const { isLoading, analysisResult, error, analyzeGeneral, analyzeSingleSource, isActiveSource } = useAnalysis()
-
 /**
  * Gerencia os diferentes tipos de análise com base na fonte
  */
