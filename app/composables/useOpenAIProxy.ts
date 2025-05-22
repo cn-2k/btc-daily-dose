@@ -1,16 +1,14 @@
-// composables/useOpenAIProxy.ts
 import { useApiKey } from './useApiKey'
+import type { Message } from '~~/types'
 
 export function useOpenAIProxy() {
   const runtimeConfig = useRuntimeConfig()
-  const { apiKey, hasApiKey } = useApiKey()
+  const { hasApiKey } = useApiKey()
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
 
   /**
    * Chama a API OpenAI através do proxy do servidor
-   * @param messages Array de mensagens para enviar à OpenAI
-   * @param images Array opcional de imagens em base64
-   * @param options Opções adicionais como modelo, temperatura, etc.
-   * @returns Promise com o conteúdo da resposta
    */
   const callOpenAI = async (
     messages: any[],
@@ -20,21 +18,18 @@ export function useOpenAIProxy() {
       max_tokens?: number
       temperature?: number
     } = {},
-  ) => {
-    // Verificar se temos uma chave API configurada
-    if (!hasApiKey.value && !runtimeConfig.openaiApiKey) {
+  ): Promise<string> => {
+    if (!hasApiKey.value) {
       throw new Error('Chave API OpenAI não configurada. Configure a chave nas configurações.')
     }
 
-    try {
-      // Usar a chave do usuário se disponível, senão usar a chave do ambiente
-      const key = hasApiKey.value ? apiKey.value : runtimeConfig.openaiApiKey
+    isLoading.value = true
+    error.value = null
 
-      // Chamar o endpoint do proxy
-      const response = await useFetch('/api/openai/proxy', {
+    try {
+      const { data, error: fetchError } = await useFetch('/api/openai/proxy', {
         method: 'POST',
         body: {
-          apiKey: key,
           messages,
           images,
           model: options.model || runtimeConfig.public.openaiModel,
@@ -43,21 +38,58 @@ export function useOpenAIProxy() {
         },
       })
 
-      // Verificar se a resposta foi bem-sucedida
-      if (response.error.value) {
-        throw new Error(response.error.value?.message || 'Erro ao chamar a API OpenAI')
+      if (fetchError.value) {
+        throw new Error(fetchError.value.message || 'Erro ao chamar a API OpenAI')
       }
 
-      // Retornar o conteúdo da resposta
-      return response.data.value?.content || ''
+      return data.value?.content || ''
     }
-    catch (error) {
-      console.error('Erro ao chamar o proxy OpenAI:', error)
-      throw error
+    catch (err: any) {
+      error.value = err.message || 'Erro desconhecido ao chamar a API OpenAI'
+      console.error('Erro ao chamar o proxy OpenAI:', err)
+      throw err
     }
+    finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Função para tratar mensagens de chat
+   * @param chatMessages Histórico de mensagens do chat
+   * @param systemPrompt Prompt de sistema (opcional)
+   */
+  const chatWithOpenAI = async (
+    chatMessages: Message[],
+    systemPrompt: string = 'Você é um assistente útil e amigável.',
+    options: {
+      model?: string
+      max_tokens?: number
+      temperature?: number
+    } = {},
+  ): Promise<string> => {
+    // Converter mensagens do formato da aplicação para o formato da OpenAI
+    const openAIMessages = [
+      // Adicionar o prompt do sistema
+      {
+        role: 'system',
+        content: systemPrompt,
+      },
+      // Converter mensagens do chat
+      ...chatMessages.map(msg => ({
+        role: msg.userId === 'assistant' ? 'assistant' : 'user',
+        content: msg.text,
+      })),
+    ]
+
+    // Chamar a API com as mensagens formatadas
+    return await callOpenAI(openAIMessages, [], options)
   }
 
   return {
     callOpenAI,
+    chatWithOpenAI,
+    isLoading,
+    error,
   }
 }

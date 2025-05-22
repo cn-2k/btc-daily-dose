@@ -1,8 +1,7 @@
-// server/api/analysis/tradingview.post.ts
-import { prompts } from '@/utils/ai/prompts'
+import { prompts } from '~/utils/ai/prompts'
 
 export default defineEventHandler(async (event) => {
-  await requireUserSession(event)
+  const runtimeConfig = useRuntimeConfig()
 
   try {
     // Ler o corpo da requisição
@@ -15,40 +14,21 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Buscar a chave API do usuário da sessão ou do localStorage
-    let apiKey = null
-
-    // Verificar se temos a chave na sessão (se o usuário estiver autenticado)
-    const session = await getUserSession(event)
-    if (session?.openaiApiKey) {
-      apiKey = session.openaiApiKey
-    }
-    else {
-      // Verificar se temos a chave no cookie (alternativa se o usuário não estiver autenticado)
-      // Isso é uma implementação de exemplo - pode precisar ser ajustada
-      const cookies = parseCookies(event)
-      if (cookies['openai_api_key']) {
-        apiKey = cookies['openai_api_key']
-      }
-    }
-
-    // Usar a chave de configuração como fallback
-    if (!apiKey) {
-      const config = useRuntimeConfig()
-      apiKey = config.openaiApiKey
-    }
+    // Buscar a chave API diretamente do cookie
+    const apiKey = getCookie(event, 'openai_api_key')
 
     if (!apiKey) {
       throw createError({
-        statusCode: 400,
+        statusCode: 401,
         message: 'Chave API OpenAI não configurada.',
       })
     }
 
     // Chamar o proxy para a OpenAI
-    const response: any = await $fetch('/api/openai/proxy', {
+    const response = await $fetch('/api/openai/proxy', {
       method: 'POST',
       body: {
+        // Enviar a chave API
         apiKey,
         messages: [
           {
@@ -61,8 +41,8 @@ export default defineEventHandler(async (event) => {
           },
         ],
         images: [screenshot],
-        model: useRuntimeConfig().public.openaiModel,
-        max_tokens: useRuntimeConfig().public.openaiMaxTokens,
+        model: runtimeConfig.public.openaiModel,
+        max_tokens: runtimeConfig.public.openaiMaxTokens,
         temperature: 0.8,
       },
     })
@@ -73,7 +53,12 @@ export default defineEventHandler(async (event) => {
       response: response.content,
     }
   }
-  catch (error) {
+  catch (error: any) {
     console.error('Erro ao processar a análise:', error)
+
+    throw createError({
+      statusCode: error.statusCode || 500,
+      message: error.message || 'Erro ao processar a análise',
+    })
   }
 })

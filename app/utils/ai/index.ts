@@ -2,7 +2,7 @@ import { serverLog } from '../../../server/utils/logger'
 
 export const analyseTradingViewChartWithOpenAI = async (screenshot: string) => {
   try {
-    serverLog('Starting A.I analysis of TradingView BTC chart.')
+    serverLog('Iniciando análise de IA do gráfico BTC do TradingView.')
 
     const response: any = await $fetch('/api/analysis/tradingview', {
       method: 'POST',
@@ -11,12 +11,12 @@ export const analyseTradingViewChartWithOpenAI = async (screenshot: string) => {
       },
     })
 
-    serverLog('A.I analysis of TradingView BTC chart completed successfully.')
+    serverLog('Análise de IA do gráfico BTC do TradingView concluída com sucesso.')
 
     return response.response
   }
   catch (error) {
-    console.error('Erro durante a análise com OpenAI:', error)
+    console.error('Erro durante a análise:', error)
     throw error
   }
 }
@@ -25,7 +25,7 @@ export const analyseHeatMapChartWithOpenAI = async (
   screenshot: string,
 ) => {
   try {
-    serverLog('Starting A.I analysis of BTC Liquidity Heatmap.')
+    serverLog('Iniciando análise de IA do Mapa de Calor de Liquidez do BTC.')
 
     const response: any = await $fetch('/api/analysis/heatmap', {
       method: 'POST',
@@ -33,19 +33,19 @@ export const analyseHeatMapChartWithOpenAI = async (
         screenshot,
       },
     })
-    serverLog('A.I analysis of BTC Liquidity Heatmap completed successfully.')
+    serverLog('Análise de IA do Mapa de Calor de Liquidez do BTC concluída com sucesso.')
 
     return response.response
   }
   catch (error) {
-    console.error('Erro durante a análise com OpenAI:', error)
+    console.error('Erro durante a análise:', error)
     throw error
   }
 }
 
 export const analyseChartAndLiquidationWithOpenAI = async (tradingViewScreenshot: string, heatMap: string) => {
   try {
-    serverLog('Starting general A.I analysis of BTC chart and liquidity map.')
+    serverLog('Iniciando análise de IA geral do gráfico e mapa de liquidação do BTC.')
 
     const response: any = await $fetch('/api/analysis/general', {
       method: 'POST',
@@ -54,12 +54,12 @@ export const analyseChartAndLiquidationWithOpenAI = async (tradingViewScreenshot
         heatMap,
       },
     })
-    serverLog('A.I analysis of BTC chart and heat map completed successfully.')
+    serverLog('Análise de IA do gráfico e mapa de calor do BTC concluída com sucesso.')
 
     return response.response
   }
   catch (error) {
-    console.error('Erro durante a análise com OpenAI:', error)
+    console.error('Erro durante a análise:', error)
     throw error
   }
 }

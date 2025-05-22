@@ -2,7 +2,6 @@
   <section>
     <div class="py-8 px-4 mx-auto max-w-screen-2xl lg:py-10 lg:px-6">
       <AppHeader />
-
       <div class="flex flex-col lg:flex-row justify-between gap-4 items-center mb-3 w-full">
         <!-- BTC Liquidity Button -->
         <UButton
@@ -103,6 +102,7 @@
         </transition>
       </ClientOnly>
     </div>
+    <ChatWidget />
   </section>
 </template>
 
@@ -125,10 +125,24 @@ interface CardsDescriptionProps {
 }
 
 const { isLoading, analysisResult, error, analyzeGeneral, analyzeSingleSource, isActiveSource } = useAnalysis()
+const { hasApiKey } = useApiKey()
+const toast = useToast()
+
 /**
  * Gerencia os diferentes tipos de análise com base na fonte
  */
 const handleAnalyze = async (source: AnalysisSource) => {
+  if (!hasApiKey.value) {
+    toast.add({
+      title: 'Chave de API não configurada!',
+      description: 'Você precisa definir uma chave de API nas configurações.',
+      icon: 'i-mdi-alert',
+      color: 'error',
+    })
+
+    return
+  }
+
   if (source === 'general') {
     await analyzeGeneral()
   }

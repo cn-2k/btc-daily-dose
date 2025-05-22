@@ -2,7 +2,7 @@
 import { prompts } from '@/utils/ai/prompts'
 
 export default defineEventHandler(async (event) => {
-  // await requireUserSession(event)
+  const runtimeConfig = useRuntimeConfig()
 
   try {
     // Ler o corpo da requisição
@@ -15,31 +15,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Buscar a chave API do usuário da sessão ou do localStorage
-    let apiKey = null
-
-    // Verificar se temos a chave na sessão (se o usuário estiver autenticado)
-    const session = await getUserSession(event)
-    if (session?.openaiApiKey) {
-      apiKey = session.openaiApiKey
-    }
-    else {
-      // Verificar se temos a chave no cookie (alternativa se o usuário não estiver autenticado)
-      const cookies = parseCookies(event)
-      if (cookies['openai_api_key']) {
-        apiKey = cookies['openai_api_key']
-      }
-    }
-
-    // Usar a chave de configuração como fallback
-    if (!apiKey) {
-      const config = useRuntimeConfig()
-      apiKey = config.openaiApiKey
-    }
+    // Buscar a chave API diretamente do cookie
+    const apiKey = getCookie(event, 'openai_api_key')
 
     if (!apiKey) {
       throw createError({
-        statusCode: 400,
+        statusCode: 401,
         message: 'Chave API OpenAI não configurada.',
       })
     }
@@ -60,8 +41,8 @@ export default defineEventHandler(async (event) => {
           },
         ],
         images: [tradingViewScreenshot, heatMap],
-        model: useRuntimeConfig().public.openaiModel,
-        max_tokens: useRuntimeConfig().public.openaiMaxTokens,
+        model: runtimeConfig.public.openaiModel,
+        max_tokens: runtimeConfig.public.openaiMaxTokens,
         temperature: 0.8,
       },
     })

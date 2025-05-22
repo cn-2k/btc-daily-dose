@@ -1,7 +1,7 @@
 import type { Page } from 'puppeteer-core'
 
 export const getTradingViewScreenshot = async (page: Page) => {
-  serverLog('Going to TradingView Page')
+  serverLog('Acessando a página do TradingView')
 
   await page.setViewport({
     width: 1920, // Largura da tela
@@ -12,13 +12,13 @@ export const getTradingViewScreenshot = async (page: Page) => {
 
   // Captura o screenshot como buffer
   const screenshotBase64 = await page.screenshot({ encoding: 'base64' })
-  serverLog('TradingView screenshot captured in base64.')
+  serverLog('Imagem do TradingView capturada em base64.')
 
   return screenshotBase64
 }
 
 export const getHeatMapScreenshot = async (page: Page) => {
-  serverLog('Going to Coinglass BTC HeatMap Page')
+  serverLog('Acessando a página do mapa de liquição do BTC no Coinglass')
 
   await page.setViewport({
     width: 1920, // Largura da tela
@@ -29,7 +29,7 @@ export const getHeatMapScreenshot = async (page: Page) => {
 
   // Captura o screenshot como buffer
   const screenshotBase64 = await page.screenshot({ encoding: 'base64' })
-  serverLog('BTC Liquidity Heatmap screenshot captured in base64.')
+  serverLog('Imagem do mapa de liquidação do BTC no Coinglass capturada em base64.')
 
   return screenshotBase64
 }

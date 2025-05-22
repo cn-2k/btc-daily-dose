@@ -1,81 +1,84 @@
-// server/api/openai/proxy.post.ts
-import OpenAI from 'openai'
-
-// TODO: validate w/ zod
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const {
-      apiKey,
+      apiKey: providedApiKey = null, // apiKey é opcional aqui
+      messages,
+      images = [],
       model,
       max_tokens,
       temperature,
-      messages,
-      images = [], // Array de imagens em base64 (opcional)
     } = body
 
+    // Se não foi fornecida uma chave (chamada do cliente), busca do cookie
+    let apiKey = providedApiKey
+
     if (!apiKey) {
-      throw createError({
-        statusCode: 400,
-        message: 'Chave API é obrigatória.',
-      })
-    }
+      apiKey = getCookie(event, 'openai_api_key')
 
-    if (!messages || !Array.isArray(messages)) {
-      throw createError({
-        statusCode: 400,
-        message: 'Messages é obrigatório e deve ser um array.',
-      })
-    }
-
-    // Criar cliente OpenAI com a chave do usuário
-    const openai = new OpenAI({
-      apiKey,
-    })
-
-    // Processar as mensagens e inserir imagens se necessário
-    const processedMessages = messages.map((msg) => {
-      // Se não for a mensagem do usuário ou não houver imagens, retorna a mensagem original
-      if (msg.role !== 'user' || images.length === 0) {
-        return msg
-      }
-
-      // Se for a mensagem do usuário e houver imagens, adiciona as imagens ao conteúdo
-      const content = Array.isArray(msg.content) ? [...msg.content] : [{ type: 'text', text: msg.content }]
-
-      // Adicionar imagens como conteúdo
-      images.forEach((img: string) => {
-        content.push({
-          type: 'image_url',
-          image_url: {
-            url: `data:image/png;base64,${img}`,
-          },
+      if (!apiKey) {
+        throw createError({
+          statusCode: 401,
+          message: 'Chave API OpenAI não configurada.',
         })
-      })
-
-      return {
-        ...msg,
-        content,
       }
+    }
+
+    // Preparar as mensagens para o modelo
+    const apiMessages = messages.map((msg: any) => {
+      // Verificar se esta mensagem contém imagens para anexar
+      if (msg.role === 'user' && images.length > 0) {
+        return {
+          role: msg.role,
+          content: [
+            { type: 'text', text: msg.content },
+            ...images.map((image: string) => ({
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${image}`,
+              },
+            })),
+          ],
+        }
+      }
+
+      // Mensagem regular sem imagens
+      return msg
     })
 
-    // Fazer a chamada à API da OpenAI
-    const response = await openai.chat.completions.create({
-      model: model || 'gpt-4o',
-      max_tokens: max_tokens || 4000,
-      temperature: temperature || 0.8,
-      n: 1,
-      messages: processedMessages,
+    // Configurar a solicitação para a OpenAI
+    const openaiConfig = useRuntimeConfig()
+    const openaiUrl = 'https://api.openai.com/v1/chat/completions'
+
+    // Fazer a solicitação para a API da OpenAI
+    const openaiResponse = await $fetch(openaiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: model || openaiConfig.public.openaiModel,
+        messages: apiMessages,
+        max_tokens: max_tokens || openaiConfig.public.openaiMaxTokens,
+        temperature: temperature || 0.7,
+      }),
     })
 
-    // Retornar apenas o conteúdo da resposta para simplificar
+    // Extrair e retornar o conteúdo da resposta
+    const content = openaiResponse.choices?.[0]?.message?.content || ''
+
     return {
       success: true,
-      content: response.choices[0]?.message?.content,
-      response, // Incluir a resposta completa para caso o cliente precise
+      content,
     }
   }
-  catch (error) {
-    console.error('Erro na chamada à API OpenAI:', error)
+  catch (error: any) {
+    console.error('Erro ao chamar a API OpenAI:', error)
+
+    throw createError({
+      statusCode: error.statusCode || 500,
+      message: error.message || 'Erro ao chamar a API OpenAI',
+    })
   }
 })
