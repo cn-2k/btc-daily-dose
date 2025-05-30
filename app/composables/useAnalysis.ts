@@ -1,14 +1,12 @@
 import type { AnalysisResponse, AnalysisRequestBody, AnalysisSource } from '@/types/analysis'
 
+const analysisResult = ref<AnalysisResponse | null>(null)
+
 export const useAnalysis = () => {
-  const analysisResult = ref<AnalysisResponse | null>(null)
   const isLoading = ref<boolean>(false)
   const activeSource = ref<AnalysisSource | null>(null)
   const error = ref<string | null>(null)
 
-  /**
-   * Realiza scraping e análise do heatmap do BTC e gráfico TradingView juntos
-   */
   const analyzeGeneral = async () => {
     return performAnalysis('general', async () => {
       const [tradingViewResponse, heatMapResponse] = await Promise.all([
@@ -20,7 +18,7 @@ export const useAnalysis = () => {
         method: 'POST',
         body: {
           tradingViewScreenshot: tradingViewResponse.screenshotBase64,
-          heatMap: heatMapResponse.screenshotBase64,
+          heatMapScreenshot: heatMapResponse.screenshotBase64,
         } as AnalysisRequestBody,
       })
     })
@@ -45,11 +43,14 @@ export const useAnalysis = () => {
    * Função auxiliar para gerenciar o estado durante a análise
    */
   const performAnalysis = async (source: AnalysisSource, fetchFn: () => Promise<AnalysisResponse>) => {
+    // CORREÇÃO: Definir activeSource IMEDIATAMENTE quando o botão é clicado
+    // Isso permite que o novo botão fique ativo e o anterior seja desativado
+    activeSource.value = source
+
     // Reset do estado
     analysisResult.value = null
     error.value = null
     isLoading.value = true
-    activeSource.value = source
 
     try {
       // Executa a função de fetch passada como parâmetro
@@ -60,11 +61,29 @@ export const useAnalysis = () => {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido na análise'
       console.error(`Erro ao analisar ${source}:`, err)
       error.value = errorMessage
+
+      // CORREÇÃO: Em caso de erro, limpar o activeSource
+      activeSource.value = null
       return null
     }
     finally {
       isLoading.value = false
+      // NOTA: activeSource mantém o valor para mostrar qual foi a última análise bem-sucedida
     }
+  }
+
+  /**
+   * NOVA FUNÇÃO: Permite limpar o estado ativo manualmente
+   */
+  const clearActiveSource = () => {
+    activeSource.value = null
+  }
+
+  /**
+   * NOVA FUNÇÃO: Permite definir qual fonte está ativa
+   */
+  const setActiveSource = (source: AnalysisSource | null) => {
+    activeSource.value = source
   }
 
   return {
@@ -80,5 +99,7 @@ export const useAnalysis = () => {
 
     // Helpers
     isActiveSource: (source: AnalysisSource) => activeSource.value === source,
+    clearActiveSource,
+    setActiveSource,
   }
 }

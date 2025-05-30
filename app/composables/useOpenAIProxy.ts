@@ -1,5 +1,5 @@
 import { useApiKey } from './useApiKey'
-import type { Message } from '~~/types'
+import type { Message, OpenAIInputMessage } from '~~/types'
 
 export function useOpenAIProxy() {
   const runtimeConfig = useRuntimeConfig()
@@ -8,15 +8,17 @@ export function useOpenAIProxy() {
   const error = ref<string | null>(null)
 
   /**
-   * Chama a API OpenAI através do proxy do servidor
+   * Chama a API OpenAI através do proxy do servidor usando Responses API
    */
   const callOpenAI = async (
-    messages: any[],
+    input: string | OpenAIInputMessage[],
     images: string[] = [],
     options: {
       model?: string
-      max_tokens?: number
+      max_output_tokens?: number
       temperature?: number
+      instructions?: string
+      tools?: { type: string }[] // Adicionar tools aqui
     } = {},
   ): Promise<string> => {
     if (!hasApiKey.value) {
@@ -27,22 +29,20 @@ export function useOpenAIProxy() {
     error.value = null
 
     try {
-      const { data, error: fetchError } = await useFetch('/api/openai/proxy', {
+      const data = await $fetch('/api/openai/proxy', {
         method: 'POST',
         body: {
-          messages,
+          input,
           images,
+          instructions: options.instructions,
           model: options.model || runtimeConfig.public.openaiModel,
-          max_tokens: options.max_tokens || runtimeConfig.public.openaiMaxTokens,
+          max_output_tokens: options.max_output_tokens || runtimeConfig.public.openaiMaxTokens,
           temperature: options.temperature || 0.8,
+          tools: options.tools || [], // Passar tools para o servidor
         },
       })
 
-      if (fetchError.value) {
-        throw new Error(fetchError.value.message || 'Erro ao chamar a API OpenAI')
-      }
-
-      return data.value?.content || ''
+      return data.content || ''
     }
     catch (err: any) {
       error.value = err.message || 'Erro desconhecido ao chamar a API OpenAI'
@@ -55,35 +55,39 @@ export function useOpenAIProxy() {
   }
 
   /**
-   * Função para tratar mensagens de chat
+   * Função para tratar mensagens de chat usando Responses API
    * @param chatMessages Histórico de mensagens do chat
-   * @param systemPrompt Prompt de sistema (opcional)
+   * @param systemPrompt Prompt de sistema (será usado como instructions)
    */
   const chatWithOpenAI = async (
     chatMessages: Message[],
     systemPrompt: string = 'Você é um assistente útil e amigável.',
     options: {
       model?: string
-      max_tokens?: number
+      max_output_tokens?: number
       temperature?: number
+      tools?: { type: string }[]
+      enableWebSearch?: boolean // Nova opção para facilitar o uso
     } = {},
   ): Promise<string> => {
-    // Converter mensagens do formato da aplicação para o formato da OpenAI
-    const openAIMessages = [
-      // Adicionar o prompt do sistema
-      {
-        role: 'system',
-        content: systemPrompt,
-      },
-      // Converter mensagens do chat
-      ...chatMessages.map(msg => ({
-        role: msg.userId === 'assistant' ? 'assistant' : 'user',
-        content: msg.text,
-      })),
-    ]
+    // Converter mensagens do formato da aplicação para o formato da Responses API
+    const inputMessages: OpenAIInputMessage[] = chatMessages.map(msg => ({
+      role: msg.userId === 'assistant' ? 'assistant' : 'user',
+      content: msg.text,
+    }))
 
-    // Chamar a API com as mensagens formatadas
-    return await callOpenAI(openAIMessages, [], options)
+    // Se enableWebSearch for true, adicionar automaticamente
+    let tools = options.tools || []
+    if (options.enableWebSearch && !tools.some(tool => tool.type === 'web_search_preview')) {
+      tools = [...tools, { type: 'web_search_preview' }]
+    }
+
+    // Chamar a API com as mensagens formatadas e instructions
+    return await callOpenAI(inputMessages, [], {
+      ...options,
+      instructions: systemPrompt,
+      tools,
+    })
   }
 
   return {

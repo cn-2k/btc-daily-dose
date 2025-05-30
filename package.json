@@ -12,15 +12,15 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
     "@nuxt/ui": "^3.0.2",
     "@sparticuz/chromium": "^133.0.0",
     "@sparticuz/chromium-min": "^133.0.0",
     "@vueuse/nuxt": "^13.1.0",
     "markdown-it": "^14.1.0",
     "marked": "^15.0.9",
-    "nuxt": "^3.16.2",
-    "nuxt-auth-utils": "^0.5.20",
-    "openai": "^4.95.1",
+    "nuxt": "^3.17.4",
+    "openai": "^4.102.0",
     "puppeteer": "^24.7.0",
     "puppeteer-core": "^24.7.0",
     "vue": "latest",
@@ -33,7 +33,6 @@
     "@types/markdown-it": "^14.1.2",
     "eslint": "^9.25.1",
     "typescript": "^5.8.3",
-    "vue-tsc": "^2.2.10",
-    "zod": "^3.24.3"
+    "vue-tsc": "^2.2.10"
   }
 }

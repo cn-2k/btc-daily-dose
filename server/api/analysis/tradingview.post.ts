@@ -1,10 +1,10 @@
+// /server/api/analysis/tradingview.post.ts
 import { prompts } from '~/utils/ai/prompts'
 
 export default defineEventHandler(async (event) => {
   const runtimeConfig = useRuntimeConfig()
 
   try {
-    // Ler o corpo da requisição
     const { screenshot } = await readBody(event)
 
     if (!screenshot) {
@@ -14,7 +14,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Buscar a chave API diretamente do cookie
     const apiKey = getCookie(event, 'openai_api_key')
 
     if (!apiKey) {
@@ -24,37 +23,26 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Chamar o proxy para a OpenAI
     const response = await $fetch('/api/openai/proxy', {
       method: 'POST',
       body: {
-        // Enviar a chave API
         apiKey,
-        messages: [
-          {
-            role: 'system',
-            content: prompts.tradingViewAnalysis,
-          },
-          {
-            role: 'user',
-            content: 'Por favor, analise este gráfico do Bitcoin:',
-          },
-        ],
+        input: 'Por favor, analise este gráfico do Bitcoin em detalhes. Descreva o que você vê na imagem.',
+        instructions: prompts.tradingViewAnalysis,
         images: [screenshot],
         model: runtimeConfig.public.openaiModel,
-        max_tokens: runtimeConfig.public.openaiMaxTokens,
+        max_output_tokens: runtimeConfig.public.openaiMaxTokens,
         temperature: 0.8,
       },
     })
 
-    // Retornar a resposta da análise
     return {
       success: true,
       response: response.content,
     }
   }
   catch (error: any) {
-    console.error('Erro ao processar a análise:', error)
+    console.error(error)
 
     throw createError({
       statusCode: error.statusCode || 500,

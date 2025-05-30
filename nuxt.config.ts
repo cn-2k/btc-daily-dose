@@ -2,12 +2,7 @@
 import type * as ChatAPI from './node_modules/openai/src/resources/chat/chat'
 
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/ui',
-    '@vueuse/nuxt',
-    'nuxt-auth-utils',
-  ],
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@vueuse/nuxt'],
 
   ssr: false,
   devtools: { enabled: true },
@@ -36,9 +31,7 @@ export default defineNuxtConfig({
     openaiApiKey: '',
 
     public: {
-      browserWs: process.env.BROWSER_WS || '',
-      openaiEnabled: process.env.OPENAI_ENABLED === 'true' || process.env.OPENAI_ENABLED === '1',
-      openaiModel: process.env.OPENAI_MODEL || 'gpt-4o' as ChatAPI.ChatModel,
+      openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini' as ChatAPI.ChatModel,
       openaiMaxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '4000'),
     },
   },

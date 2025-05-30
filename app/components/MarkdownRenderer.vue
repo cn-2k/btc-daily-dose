@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <p
-      class="prose max-w-none dark:prose-invert"
+      class="prose max-w-none dark:prose-invert text-sm lg:text-base"
       v-html="markdown.render(source)"
     />
   </div>

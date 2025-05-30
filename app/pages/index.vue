@@ -103,6 +103,35 @@
       </ClientOnly>
     </div>
     <ChatWidget />
+    <UModal
+      v-model:open="openModal"
+      title="Deseja refazer a análise?"
+      close-icon="i-mdi:close"
+    >
+      <template #body>
+        <div class="h-full justify-center items-center flex flex-col gap-10 m-4">
+          <UAlert
+            color="info"
+            variant="subtle"
+            description="Deseja fazer uma nova análise? Isso irá iniciar um novo processo e apagará a análise atual."
+          />
+          <div class="flex gap-2">
+            <UButton
+              label="Cancelar"
+              color="neutral"
+              variant="subtle"
+              @click="openModal = false"
+            />
+            <UButton
+              label="Refazer"
+              color="success"
+              variant="subtle"
+              @click="handleAnalyze(activeSource!, true); openModal = false"
+            />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </section>
 </template>
 
@@ -117,6 +146,11 @@ useHead({
   },
 })
 
+useSeoMeta({
+  title: 'BTC Daily Dose',
+  description: 'Explore análises detalhadas do Bitcoin, incluindo mapa de liquidações e gráficos do TradingView.',
+})
+
 interface CardsDescriptionProps {
   content: string
   icon: string
@@ -124,14 +158,19 @@ interface CardsDescriptionProps {
   color: 'amber' | 'blue' | 'green' | 'red' | 'purple' | 'indigo' | 'pink' | undefined
 }
 
-const { isLoading, analysisResult, error, analyzeGeneral, analyzeSingleSource, isActiveSource } = useAnalysis()
+const { isLoading, analysisResult, error, analyzeGeneral, analyzeSingleSource, isActiveSource, activeSource } = useAnalysis()
 const { hasApiKey } = useApiKey()
 const toast = useToast()
+const openModal = ref<boolean>(false)
 
 /**
  * Gerencia os diferentes tipos de análise com base na fonte
  */
-const handleAnalyze = async (source: AnalysisSource) => {
+
+/**
+ * Gerencia os diferentes tipos de análise com base na fonte
+ */
+const handleAnalyze = async (source: AnalysisSource, redo?: boolean) => {
   if (!hasApiKey.value) {
     toast.add({
       title: 'Chave de API não configurada!',
@@ -139,10 +178,17 @@ const handleAnalyze = async (source: AnalysisSource) => {
       icon: 'i-mdi-alert',
       color: 'error',
     })
-
     return
   }
 
+  // CORREÇÃO: Verificar se já existe resultado E se o botão clicado é o mesmo que está ativo
+  if (analysisResult.value && !redo && activeSource.value === source) {
+    // Só mostra o modal se clicar no mesmo botão que já está ativo
+    openModal.value = true
+    return
+  }
+
+  // Se clicar em um botão diferente do ativo, executa diretamente a nova análise
   if (source === 'general') {
     await analyzeGeneral()
   }

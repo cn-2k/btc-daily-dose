@@ -14,6 +14,7 @@ const bot = ref<User>({
 })
 
 const { chatWithOpenAI, error } = useOpenAIProxy()
+const { analysisResult } = useAnalysis()
 
 const users = computed(() => [me.value, bot.value])
 
@@ -21,7 +22,9 @@ const messages = ref<Message[]>([])
 
 const usersTyping = ref<User[]>([])
 
-const systemPrompt = 'Você é um assistente útil especializado em análise de mercado de criptomoedas. Seja conciso e forneça informações precisas.'
+const systemPrompt = computed(() => {
+  return `Você é um assistente útil especializado em análise de mercado de criptomoedas. Forneça respostas curtas e objetivas. Seja conciso e forneça informações baseadas na análise atual: ${analysisResult.value?.response}`
+})
 
 async function handleNewMessage(message: Message) {
   // Adicionar a mensagem do usuário ao histórico
@@ -31,8 +34,15 @@ async function handleNewMessage(message: Message) {
   usersTyping.value.push(bot.value)
 
   try {
-    // Enviar o histórico completo de mensagens para a API
-    const response = await chatWithOpenAI(messages.value, systemPrompt)
+    const response = await chatWithOpenAI(
+      messages.value,
+      systemPrompt.value,
+      {
+        enableWebSearch: true,
+        model: 'gpt-4.1',
+        temperature: 0.5,
+      },
+    )
 
     // Criar mensagem de resposta do assistente
     const botMessage: Message = {
@@ -58,7 +68,6 @@ async function handleNewMessage(message: Message) {
     })
   }
   finally {
-    // Remover indicação de digitação
     usersTyping.value = []
   }
 }
@@ -66,6 +75,7 @@ async function handleNewMessage(message: Message) {
 
 <template>
   <ChatBox
+    v-if="analysisResult?.response"
     :me="me"
     :users="users"
     :messages="messages"
