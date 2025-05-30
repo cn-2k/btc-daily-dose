@@ -1,82 +1,117 @@
-# Overview da aplicação
-![image](https://github.com/user-attachments/assets/3473ecca-9349-43a7-85be-cf3d9762591c)
-
-# Lista de artigos scrappados
-![image](https://github.com/user-attachments/assets/8c563085-913d-4c28-b0a1-72e7b1c4d6d5)
 
 
-# Nuxt Minimal Starter
+# ₿ BTC Daily Dose
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+> Uma aplicação para análise automatizada de Bitcoin usando IA e web scraping
 
-## Setup
+<div align="center">
 
-Make sure to install dependencies:
+![Nuxt 3](https://img.shields.io/badge/Nuxt-3.17.4-00DC82?style=for-the-badge&logo=nuxt.js)
+![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?style=for-the-badge&logo=vue.js)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT-412991?style=for-the-badge&logo=openai)
+![Puppeteer](https://img.shields.io/badge/Puppeteer-Web%20Scraping-40E0D0?style=for-the-badge)
 
+</div>
+
+https://github.com/user-attachments/assets/0b62228a-810e-4148-86a5-91ff5ad86b52
+
+## ✨ Sobre o Projeto
+
+O **BTC Daily Dose** é uma aplicação web que fornece análises detalhadas do mercado de Bitcoin em tempo real. Utilizando web scraping inteligente e processamento de imagens com IA, a aplicação captura dados visuais de plataformas como TradingView e CoinGlass para gerar insights valiosos sobre movimentações de preço, suportes, resistências e mapas de liquidação.
+
+## 🎯 Funcionalidades Principais
+
+### 📊 **Análise Automatizada**
+- **TradingView**: Captura e análise de gráficos do Bitcoin (limitado ao gráfico diário atualmente)
+- **CoinGlass Liquidation Maps**: Monitoramento do mapa de liquidações do Bitcoin
+- **Análise Combinada**: Insights unificados obtidos através da análise do gráfico do Bitcoin e do seu mapa de liquidação
+
+### 🤖 **Inteligência Artificial**
+- Processamento de imagens com OpenAI
+- Análise de price action e padrões técnicos
+- Identificação automática de suportes e resistências
+- Insights baseados em prompts customizados
+
+### 💬 **Chat Inteligente**
+- Chat contextual pós-análise utilizando OpenAI
+- Pesquisa na internet integrada
+- Respostas baseadas na análise atual
+
+### 🔄 **Tempo Real**
+- Server-Sent Events (SSE) para updates em tempo real
+- Feedback visual das operações em andamento (saiba o que está acontecendo enquanto espera xD)
+
+## 🛠️ Stack Utilizada
+
+<table>
+<tr>
+<td align="center"><strong>Frontend</strong></td>
+<td align="center"><strong>Backend</strong></td>
+<td align="center"><strong>Scraping</strong></td>
+<td align="center"><strong>IA</strong></td>
+</tr>
+<tr>
+<td>
+
+- **Nuxt 3** - Vuejs Framework
+- **Nuxt UI** - Conjunto de componentes UI
+- **TailwindCSS** - Styling utilitário
+- **VueUse** - Composables essenciais
+
+</td>
+<td>
+
+- **Server API Routes** - Endpoints REST (Nitro/unjs/h3)
+- **Server-Sent Events** - Comunicação real-time
+- **TypeScript** - Tipagem estática
+- **ESLint** - Qualidade de código
+
+</td>
+<td>
+
+- **Puppeteer** - Automação web
+- **Chromium** - Engine de renderização
+- **Base64 Encoding** - Processamento de imagens
+
+</td>
+<td>
+
+- **OpenAI GPT** - Análise de imagens e chat
+- **Markdown Rendering** - Formatação e visualização de respostas
+
+</td>
+</tr>
+</table>
+
+## 🚀 Como Começar
+
+### 📋 Pré-requisitos
+
+- **Node.js** (versão 18 ou superior)
+- **npm** ou **yarn**
+- **Chave da API OpenAI**
+
+### 🔧 Instalação
+
+1. **Clone o repositório**
 ```bash
-# npm
+git clone https://github.com/cn-2k/btc-daily-dose.git
+cd btc-daily-dose
+```
+
+2. **Instale as dependências**
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
+3. **Configure as variáveis de ambiente**
+# Crie um arquivo .env na raiz do projeto
 ```bash
-# npm
+touch .env
+```
+
+4. **Inicie o servidor de desenvolvimento**
+```bash
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
