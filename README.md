@@ -38,10 +38,6 @@ O **BTC Daily Dose** é uma aplicação web que fornece análises detalhadas do 
 - Pesquisa na internet integrada
 - Respostas baseadas na análise atual
 
-### 🔄 **Tempo Real**
-- Server-Sent Events (SSE) para updates em tempo real
-- Feedback visual das operações em andamento (saiba o que está acontecendo enquanto espera xD)
-
 ## 🛠️ Stack Utilizada
 
 <table>
@@ -64,14 +60,11 @@ O **BTC Daily Dose** é uma aplicação web que fornece análises detalhadas do 
 
 - **Server API Routes** - Endpoints REST (Nitro/unjs/h3)
 - **Server-Sent Events** - Comunicação real-time
-- **TypeScript** - Tipagem estática
-- **ESLint** - Qualidade de código
 
 </td>
 <td>
 
 - **Puppeteer** - Automação web
-- **Chromium** - Engine de renderização
 - **Base64 Encoding** - Processamento de imagens
 
 </td>
@@ -94,10 +87,9 @@ O **BTC Daily Dose** é uma aplicação web que fornece análises detalhadas do 
 
 ### 🔧 Instalação
 
-1. **Clone o repositório**
+1. **Clone o repositório e entre na pasta do projeto**
 ```bash
-git clone https://github.com/cn-2k/btc-daily-dose.git
-cd btc-daily-dose
+git clone https://github.com/cn-2k/btc-daily-dose.git && cd btc-daily-dose
 ```
 
 2. **Instale as dependências**
@@ -106,9 +98,9 @@ npm install
 ```
 
 3. **Configure as variáveis de ambiente**
-# Crie um arquivo .env na raiz do projeto
 ```bash
-touch .env
+# Altere o nome de .env.example para .env
+mv .env.example .env
 ```
 
 4. **Inicie o servidor de desenvolvimento**
