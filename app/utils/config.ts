@@ -4,7 +4,7 @@ import chromium from '@sparticuz/chromium-min'
 
 const DEFAULT_PAGE_TIMEOUT_MS = 60000
 const CHROMIUM_PATH
-  = 'https://vomrghiulbmrfvmhlflk.supabase.co/storage/v1/object/public/chromium-pack/chromium-v123.0.0-pack.tar'
+  = 'https://github.com/Sparticuz/chromium/releases/download/v123.0.0/chromium-v123.0.0-pack.tar'
 
 export const connectBrowser = async (url: string) => {
   const executablePath = await chromium.executablePath(CHROMIUM_PATH)

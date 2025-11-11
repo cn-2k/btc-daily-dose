@@ -8,7 +8,7 @@ export const getTradingViewScreenshot = async (page: Page) => {
     height: 1080, // Altura da tela
   })
 
-  await page.waitForSelector('[data-name="details-key-stats"]', { visible: true })
+  await page.waitForSelector('.widgetbar-widgetbody', { visible: true })
 
   // Captura o screenshot como buffer
   const screenshotBase64 = await page.screenshot({ encoding: 'base64' })
